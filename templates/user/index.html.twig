@@ -1,0 +1,84 @@
+{% extends 'baseadmin.html.twig' %}
+
+{% block title %}Hello AdminController!{% endblock %}
+
+{% block body %}
+<div class="main-panel">
+        <div class="content-wrapper">
+          <div class="row">
+            <div class="col-lg-6 grid-margin stretch-card">
+              <div class="card">
+                
+              </div>
+            </div>
+            
+            <div class="col-lg-12 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">Striped Table</h4>
+                  <p class="card-description">
+                   <a class="btn btn-outline-primary small-btn" href="{{ path('add') }}">Add</a>
+                  </p>
+                  <div class="table-responsive">
+                    <table class="table table-striped">
+                      <thead>
+                        <tr>
+                          <th>
+                            User
+                          </th>
+                          <th>
+                            First_name
+                          </th>
+                          <th>
+                            Email
+                          </th>
+                          <th>
+                           numero
+                          </th>
+                          <th>
+                            
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                      {% for uti in us %}
+                            {% if uti.roles|join(', ') == "ROLE_USER" %}
+                        <tr>
+                         <td class="py-1"><img src="{{asset('pic/' ~ uti.image) }}"
+                                alt="" style="width:40px; height: 40px "></td>
+                           
+                            
+                            <td>
+                          <td>
+                            {{ uti.id }}
+                          </td>
+                          <td>
+                            {{ uti.email}}
+                          </td>
+                          <td>
+                            {{ uti.numero }}
+                          </td>
+                          <td>
+                           <button type="button" class="btn btn-outline-danger btn-fw"><a href="{{ path('delete',{'id':uti.id})}}">Delete</a></button>
+                          </td>
+                          <td>
+                           <button type="button" class="btn btn-outline-success btn-fw" ><a href="{{ path('edit',{'id':uti.id})}}">Update</a></button>
+                          </td>
+                        </tr>
+                          {% endif %}
+                         {% endfor %}
+                       
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-12 grid-margin stretch-card">
+              
+                
+                  
+            </div>
+          </div>
+        </div>
+{% endblock %}

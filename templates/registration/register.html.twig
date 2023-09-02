@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register{% endblock %}
+
+{% block body %}
+   
+<div class="container-scroller">
+    <div class="container-fluid page-body-wrapper full-page-wrapper">
+      <div class="content-wrapper d-flex align-items-center auth px-0">
+        <div class="row w-100 mx-0">
+          <div class="col-lg-4 mx-auto">
+            <div class="auth-form-light text-left py-5 px-4 px-sm-5">
+              <div class="brand-logo">
+                <img src="../../images/Logonext.png" alt="logo">
+              </div>
+              
+              <h6 class="fw-light">Sign UP to continue.</h6>
+               {{ form_start(registrationForm) }}
+              <form class="pt-3">
+                <div class="form-group">
+               
+                  {{ form_row(registrationForm.email,{'attr':{'class':'form-control form-control-lg'} }) }}
+                </div>
+               
+       
+                <div class="form-group">
+                  
+                  {{ form_row(registrationForm.plainPassword , {'attr':{'class':'form-control form-control-lg'} }) }}
+                </div>
+               
+        
+                <div class="form-group">
+                  {{ form_row(registrationForm.last_name,{'attr':{'class':'form-control form-control-lg'} }) }}
+                </div>
+                
+        
+
+       
+                <div class="form-group">
+                  {{ form_row(registrationForm.first_name,{'attr':{'class':'form-control form-control-lg'} }) }}
+                </div>
+                <div class="form-group">
+                  {{ form_row(registrationForm.roles,{'attr':{'class':'form-control form-control'} }) }}
+                </div>
+                <div class="form-group">
+                  {{ form_row(registrationForm.image,{'attr':{'class':'form-control form-control-lg'} }) }}
+                </div>
+                <div class="form-group">
+                  {{ form_row(registrationForm.numero,{'attr':{'class':'form-control form-control-lg'} }) }}
+                </div>
+                 <button type="submit" class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">Register</button>
+    
+               
+                {{ form_end(registrationForm) }}
+                <div class="my-2 d-flex justify-content-between align-items-center">
+                  <div class="form-check">
+                    
+                  </div>
+                  
+                </div>
+                
+                <div class="text-center mt-4 fw-light">
+                 do you have an account? <a href="{{ path('app_login')}}" class="text-primary">SIGN IN</a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- content-wrapper ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+  </div>
+  <!-- container-scroller -->
+  <!-- plugins:js -->
+  
+    
+
+       
+        
+{% endblock %}

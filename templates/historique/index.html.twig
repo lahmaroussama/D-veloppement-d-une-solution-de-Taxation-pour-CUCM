@@ -1,0 +1,585 @@
+{% extends 'baseadmin.html.twig' %}
+
+{% block title %}Hello AdminController!{% endblock %}
+
+{% block body %}
+
+  
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+  
+  <link
+      href="https://code.jquery.com/ui/1.12.1/themes/ui-lightness/jquery-ui.css"
+      rel="stylesheet"
+    />
+    <link href="https://cdn.jsdelivr.net/timepicker.js/latest/timepicker.min.css" rel="stylesheet"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+  
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.6/jspdf.plugin.autotable.min.js"></script>
+  
+  <script src="https://cdn.jsdelivr.net/timepicker.js/latest/timepicker.min.js"></script>
+
+
+
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+<style>
+  .tableFixHead {
+    
+        overflow: auto;
+        overflow-x: hidden;
+        height: 300px;
+        width:100%;
+             padding-right:1px;
+             border-spacing: 0;
+        
+      }
+      .tableFixHead thead th {
+        padding:10px;
+        position: sticky;
+        top: 0;
+        background:white;
+          border: 1px solid black;
+        
+      }
+      .tableFixHead tfoot {
+        
+        position: sticky;
+        bottom: 0;
+        background:white;
+          border: 1px solid black;
+        
+      }
+      
+      table {
+                
+
+  border: 1px solid black;
+  table-layout: fixed;
+  width: 200px;
+}
+    
+      
+      
+      td {
+       
+  border: 1px solid black;
+  width: 100px;
+  overflow: hidden;
+}
+     
+    body {
+      
+      
+        background: #cccccc;
+      }
+      .search {
+        width: 100%;
+        position: relative;
+        display: flex;
+      }
+      .searchTerm {
+        width: 100%;
+       
+      }
+    
+     
+      
+   
+
+</style>
+
+<div class="main-panel">
+        <div class="content-wrapper">
+          <div class="row">
+           
+            
+            <div class="col-lg-12 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                <h4 class="card-title">Call history table</h4>
+                
+                  <form method="POST">
+    
+                   
+                  <div class="form-group">
+                    
+             </form>
+              
+            <div class="col-md-3">
+     <div id="input">
+    
+    
+<div>
+  Select the call time <input type="time" id="myTime" value="16" oninput="myFunctionT()">
+</div>
+</div>
+</br>
+</div>
+
+              <div class="row">
+              
+        <div class="col-md-3">
+            <h4>Date from</h4>
+            <input type="date" class="form-control" id="datefilterfrom" data-date-split-input="true">
+        </div>
+        <div class="col-md-3">
+            <h4>Date to</h4>
+          <input type="date" class="form-control" id="datefilterto" data-date-split-input="true">
+        </div>
+        
+        </div>
+        
+                  </br>
+                  <div class="tableFixHead ">
+                    <table class="table table-bordered " id="myTable" >
+                      <thead>
+                        <tr>
+                          
+                          <th>
+                            calling Number
+                          </th>
+                          <th>
+                            Called Number
+                          </th>
+                          <th>
+                            Call duration
+                          </th>
+                          <th>
+                            Call date 
+                          </th>
+                          
+                          <th>
+                            Call Direction
+                          </th>
+                          <th>
+                            Call Type
+                        </tr>
+                      </thead>
+                      <tbody>
+                      
+                       {% for histo in hi %}
+                
+                        <tr class="table-info">
+                          
+                          <td>
+                            {{histo.callingPartyNumber}}
+                          </td>
+                           <td>
+                            {{ histo.originalCalledPartyNumber }}
+                          </td>
+                          <td>
+                            {{ histo.duration|date('H:i:s')  }}
+                          </td>
+                          <td>
+                          
+                            {{ histo.dateTimeconnect|date("d/m/Y  H:i:s") }}
+                          </td>
+                         
+                          <td>
+                          
+                          {% if histo.duration == 0 %} 
+                          <i  style='color:red;font-size:14px;'  aria-hidden='true'>not answered</i>
+                             {% elseif histo.callingPartyNumber|length == 8 %}
+                             <i  style='color:blue;font-size:14px'  aria-hidden='true'>outgoing call</i>  
+                            
+                            {% else %}
+                                <i  style='color:green;font-size:14px'  aria-hidden='true'>incoming call</i> 
+                            
+                          {% endif %}
+                          </td>
+                          <td>
+                          
+                          {% if (histo.originalcalledpartynumber|length == 3) and (histo.callingPartyNumber|length == 3) %} 
+                            
+                            <center>Internal</center>
+                            
+                            {% elseif (histo.originalCalledPartyNumber|first|lower  in ['9','2','5','4','3']) and (histo.originalcalledpartynumber|length == 8) %}
+                          
+                           <center>GSM</center>
+                           {% elseif (histo.originalCalledPartyNumber|first|lower  == 8)  and histo.originalcalledpartynumber|length == 8 %}
+                           <center>Green number</center>
+                            {% elseif (histo.originalCalledPartyNumber|slice(0, 2)|lower  == 00)  %}
+                             <center>International</center>
+                             {% elseif (histo.originalCalledPartyNumber|first|lower  == 7)  %}
+                             <center>NationalFix</center>
+                          {% endif %}
+                          </td>
+                        </tr>
+                        
+                         {% endfor %}
+                          
+                       
+                       
+                      </tbody>
+                      <tfoot>
+                         <tr>
+                           
+                           <th>
+                             <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" id="myInput3" onkeyup="myFunction3()" />
+                           </th>
+                           <th>
+                             <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" id="myInput4" onkeyup="myFunction4()"/>
+                           </th>
+                           <th>
+                              <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" id="myInput7" onkeyup="myFunction7()"/>
+                           </th>
+                          <th>
+                              <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" id="myInput5" onkeyup="myFunction5()"/>
+                          </th>
+                          <th>
+                              <select id="myInput9" oninput="myFunction9()" >
+                     <option value="all">All</option>
+                     <option >outgoing call</option>
+                     <option >incoming call</option>
+                     <option value"no">not answered</option>
+                     
+                    </select>
+                          </th>
+                          <th>
+                             <select id="myInput8" oninput="myFunction8()" >
+                     <option value="ALL">All</option>
+                     <option >GSM</option>
+                     <option >interne</option>
+                     <option >NationalFix</option>
+                     <option >Green number</option>
+                    </select>
+                          </th>
+                         </tr>
+                      </tfoot>
+                      
+                    </table>
+                    
+                  </div>
+                   <button type="button" class="btn btn-outline-danger btn-icon-text" onclick="pdf()" id="cmd">
+                   
+                          <i class="ti-upload btn-icon-prepend"></i>                                                    
+                          Download PDF
+                        </button>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+                  
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-19 grid-margin stretch-card">
+              
+               
+                  
+            </div>
+          </div>
+        </div>
+        <script>
+        // filter table by colone
+        function myFunction2() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("myInput2");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+         function myFunction3() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("myInput3");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+          function myFunction4() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("myInput4");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[1];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+         function myFunction5() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("myInput5");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[3];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+       /*  function myFunction6() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("myInput6");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[6];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }*/
+          function myFunction7() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("myInput7");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[2];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        
+ //filter table with date        
+ 
+  function filterRows() {
+  var from = $('#datefilterfrom').val();
+  var to = $('#datefilterto').val();
+
+  if (!from && !to) { // no value for from and to
+    return;
+  }
+
+  from = from || '1970-01-01'; // default from to a old date if it is not set
+  to = to || '2999-12-31';
+
+  var dateFrom = moment(from);
+  var dateTo = moment(to);
+
+  $('#myTable tr').each(function(i, tr) {
+    var val = $(tr).find("td:nth-child(4)").text();
+    var dateVal = moment(val, "DD/MM/YYYY");
+    var visible = (dateVal.isBetween(dateFrom, dateTo, null, [])) ? "" : "none"; // [] for inclusive
+    $(tr).css('display', visible);
+  });
+}
+
+$('#datefilterfrom').on("change", filterRows);
+$('#datefilterto').on("change", filterRows);
+
+
+//filter table with list box
+
+   
+function myFunction6() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("myInput6");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[6];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    
+                    if (txtValue.toUpperCase().trim()==filter.trim()) {
+     
+                        tr[i].style.display = "";
+                    } 
+                    else {
+                        tr[i].style.display = "none";
+                    }
+                    
+                }
+            }}
+            function myFunction8() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("myInput8");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[5];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    
+                    if (txtValue.toUpperCase().trim()==filter.trim()) {
+     
+                        tr[i].style.display = "";
+                    } 
+                    else if (filter == "ALL"){
+                       tr[i].style.display = "";
+                       
+                    }
+                    else {
+                        tr[i].style.display = "none";
+                    }
+                    
+                }
+            }}
+            function myFunction9() {
+            var input, filter, table, tr, x,td, i, txtValue;
+            input = document.getElementById("myInput9");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+           
+           
+            
+            for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[4];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    
+                    if (txtValue.toUpperCase().trim()==filter.trim()) {
+     
+                        tr[i].style.display = "";
+                        console.log("gg");
+                    } 
+                    else if (filter == "ALL"){
+                       tr[i].style.display = "";
+                       
+                    }
+                    
+                    
+                    else {
+                        tr[i].style.display = "none";
+                    }
+                    
+                }
+            }}
+      function myFunction0() {
+  var input, filter, table, tr, td, i;
+  input = document.getElementById("check");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("myTable");
+  tr = table.getElementsByTagName("tr");
+   
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    
+    if (td) {
+
+      if (td.innerHTML.toUpperCase().trim()==filter.trim() ) {
+        tr[i].style.display= "";
+      }
+       else if (filter == "ALL"){
+                       tr[i].style.display = "";
+                }
+     
+       else  {
+         tr[i].style.display= "none";
+      }
+    }       
+  }
+}
+
+           
+/*$("#cmd").click(function(){
+    var doc = new jsPDF();
+  doc.autoTable({ html: '#myTable' })
+  doc.save('table.pdf')
+    console.log("gg")
+})*/
+
+
+
+
+function pdf(){
+    var doc = new jsPDF('p', 'pt');
+ 
+    
+    doc.setFillColor(100, 100, 240); doc.setDrawColor(100, 100, 0);
+       // doc.text("From HTML", 40, 90);
+    var res = doc.autoTableHtmlToJson(document.getElementById("myTable"));
+    var columns = [res.columns[0], res.columns[1],res.columns[2],res.columns[3],res.columns[4],res.columns[5],res.columns[6]];
+    doc.setTextColor(255,50,0);
+        doc.text("Historique des appel", 230, 25);
+    //var doc = new jsPDF()
+    // doc.autoTable({ html: '#myTable' })
+       doc.autoTable(columns, res.data, {startY: 120});
+    var today = new Date();
+    
+    var dat=today.toLocaleString();
+    var newdat = "Date Printed : "+ dat;
+    
+       doc.text(40,75,newdat);
+      doc.setFontSize(10);
+       
+       doc.save('table.pdf')
+    
+}
+
+      function myFunctionT() {
+           var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("myTime");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[3];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }}
+  </script>
+        
+       
+
+        
+        
+        
+
+
+{% endblock %}
